@@ -13,7 +13,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
-def login():
+def login_old():
     cookie_filename = 'cookies.txt'
 
     cookie_jar = cookielib.MozillaCookieJar(cookie_filename)
@@ -41,7 +41,10 @@ def login():
     os.remove(cookie_filename)
     return cookie
 
-
+def login():
+    cookie = config.COOKIE
+    return cookie
+    
 def authenticate():
     try:
         session = login()
@@ -109,11 +112,13 @@ if __name__ == '__main__':
                     .format(course, video_slug)
                 r = requests.get(video_url, cookies=cookies, headers=headers)
                 vc += 1
+                url_link = re.search('"progressiveUrl":"(.+)","expiresAt"', r.text).group(1)
                 try:
-                    download_url = re.search('"progressiveUrl":"(.+)","streamingUrl"', r.text).group(1)
+                    download_url = re.search('"progressiveUrl":"(.+)","expiresAt"', r.text).group(1)
+                    # print '[*] Downloading from URL "%s"' % download_url
                 except:
                     print '[!] ------ Can\'t download the video "%s", probably is only for premium users' % video_name
                 else:
                     print '[*] ------ Downloading video "%s"' % video_name
-                    download_file(download_url, 'out/%s/%s' % (course_name, chapter_name), '%s. %s.mp4' %
+                    download_file(download_url, 'LinkedInLearning-DLs/%s/%s/%s' % (config.LOCATION, course_name, chapter_name), '%s. %s.mp4' %
                                   (str(vc), video_name))
